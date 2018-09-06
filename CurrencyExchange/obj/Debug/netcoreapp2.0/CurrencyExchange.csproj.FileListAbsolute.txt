@@ -1,0 +1,11 @@
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\bin\Debug\netcoreapp2.0\CurrencyExchange.deps.json
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\bin\Debug\netcoreapp2.0\CurrencyExchange.runtimeconfig.json
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\bin\Debug\netcoreapp2.0\CurrencyExchange.runtimeconfig.dev.json
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\bin\Debug\netcoreapp2.0\CurrencyExchange.dll
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\bin\Debug\netcoreapp2.0\CurrencyExchange.pdb
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\obj\Debug\netcoreapp2.0\CurrencyExchange.csproj.CoreCompileInputs.cache
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\obj\Debug\netcoreapp2.0\CurrencyExchange.AssemblyInfoInputs.cache
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\obj\Debug\netcoreapp2.0\CurrencyExchange.AssemblyInfo.cs
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\obj\Debug\netcoreapp2.0\CurrencyExchange.dll
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\obj\Debug\netcoreapp2.0\CurrencyExchange.pdb
+C:\Users\aznca\source\repos\CurrencyExchange\CurrencyExchange\obj\Debug\netcoreapp2.0\CurrencyExchange.csprojResolveAssemblyReference.cache

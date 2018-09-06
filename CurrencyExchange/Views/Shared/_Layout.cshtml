@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CurrencyExchange</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+    </environment>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">CurrencyExchange</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <!--<li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>-->
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; 2018 - CurrencyExchange</p>
+        </footer>
+    </div>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
+
+    @RenderSection("Scripts", required: false)
+
+
+    <!--charting dependencies-->
+    <script type="text/javascript" src="~/js/d3.min.js"></script> <!--important this is d3 v3 not v4-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.6.6/rickshaw.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.6.6/rickshaw.min.js"></script>
+    <!--script to calculate exchange and charting-->
+    <script>
+        $(document).ready(function () {
+            console.log('ready!');
+
+            //exchange logic
+            //change input number
+            $('#base').on('input', function (e) {
+                calcExchange();
+            });
+
+            //change currency pair
+            $('#currDropdown').change(function () {
+                calcExchange();
+            });
+
+            //logic to convert curr
+            function calcExchange() {
+                //console.log('here!');
+                var convertThis = $('#base').val();
+                var conversionRate = $('#currDropdown option:selected').val();
+                var convertedResult = convertThis * conversionRate;
+                var convertedSymbol = $("#currDropdown option:selected").text();
+                $('#converted').val(convertedResult);
+                console.log(conversionRate);
+                $('#symbol').text(convertedSymbol);
+            }
+            //end exchange logic
+
+            //charting logic
+            //json encode model data
+            var chartData = '@Html.Raw(Json.Serialize(Model))';
+            var printThis = JSON.parse(chartData);
+            /*console.log(printThis); //obj
+            console.log(printThis[0]); //obj
+            console.log(printThis[0].timeStamp); //value
+            console.log(printThis[0].currencies); //array
+            console.log(printThis[0].currencies[0]); //obj
+            console.log(printThis[0].currencies[0].symbol);*/ //value
+
+            //data structure for dynamic chart load
+            var daysInParsedArray = printThis.length; //amount of data points
+            var currenciesArray = printThis[0].currencies; //just use most recent day for currs data point
+            var chartData = new Array();
+            var yValueArray = new Array(); //for storing y values for auto scale
+            var symbolName = "";
+
+            //charting
+            var myGraph = new Rickshaw.Graph({
+                element: document.querySelector("#currChart"),
+                //width: 600,
+                //height: 300,
+                //min: 0,
+                //max: 2,
+                padding: { top: 0.2, left: 0.02, right: 0.02, bottom: 0.1 },
+                renderer: 'line',
+                series: [{
+                    data: [{ x: 0, y: 0 }], //give default values to instantiate
+                    color: 'steelblue'
+                }]
+            });
+
+            //dynamic load of chart data
+            var loadSymbolData = function (symbolIndex) {
+                //go backwards before most recent is 1st
+                for (var count = daysInParsedArray - 1; count > 0; count--) { //-1 because 0 index
+                    var formattedUnixTimestamp = getUnixTimestamp(printThis[count].timeStamp); //format timestamp
+                    chartData.push({ x: formattedUnixTimestamp, y: printThis[count].currencies[symbolIndex].rate });
+                    yValueArray.push(printThis[count].currencies[symbolIndex].rate);
+                    symbolName = printThis[count].currencies[symbolIndex].symbol; //assign symbol
+                }
+            }
+
+            //logic to determine which symbol to load
+            var currSelected = function () {
+                var selectedSymbol = $("#currDropdown option:selected").text();
+                for (var counter = 0; counter < currenciesArray.length; counter++) {
+                    if (selectedSymbol === currenciesArray[counter].symbol) {
+                        return counter; //symbol found
+                    }
+                }
+            }
+
+            //change graph data based on curr selection
+            $("#currDropdown").change(function (e) {
+                var symbolIndex = currSelected(); //find symbol in data structure
+                chartData.length = 0; //clear existing chart array
+                yValueArray.length = 0; //clear existing y value array, must be here next line of code assigns this array
+                symbolName = ""; //clear symbol before loadSymbolData
+                loadSymbolData(symbolIndex); //load new data
+                yAxis.tickValues = [minArray(yValueArray) * 0.9, maxArray(yValueArray) * 1.1]; //assign min and max for scale
+                myGraph.series[0].data = chartData; //series is an array
+                //set graph settings
+                myGraph.series[0].name = "EUR/" + symbolName;
+                myGraph.min = minArray(yValueArray) * 0.85;
+                myGraph.max = maxArray(yValueArray) * 1.15;
+                myGraph.update();
+            });
+
+            //change timestamp to unix timestamp in seconds
+            var getUnixTimestamp = function (nonUnixTimestamp) {
+                var dateObject = new Date(nonUnixTimestamp); //parse string to date
+                var unixTimestamp = parseInt((dateObject.getTime() / 1000).toFixed(0)); //convert
+                return unixTimestamp;
+            }
+
+            //logic to get min/max of y axis to dynamically rescale graph
+            function minArray(yValueArray) {
+                return Math.min.apply(Math, yValueArray);
+            }
+            function maxArray(yValueArray) {
+                return Math.max.apply(Math, yValueArray);
+            }
+
+            //additional charting objects stuff
+            var graphHover = new Rickshaw.Graph.HoverDetail({
+                graph: myGraph
+            });
+            var xAxis = new Rickshaw.Graph.Axis.Time({
+                graph: myGraph
+            });
+            var yAxis = new Rickshaw.Graph.Axis.Y({
+                graph: myGraph,
+                element: document.getElementById('y_axis'),
+                height: 331 //force this
+            });
+
+            //dynamic responsiveness
+            var resize = function () {
+                myGraph.configure({
+                    width: window.innerWidth * 0.7,
+                    height: window.innerHeight * 0.5
+                });
+                //load data at first page render
+                loadSymbolData(0); //default is USD
+                //assign min and max for scale
+                yAxis.tickValues = [minArray(yValueArray) * 0.9, maxArray(yValueArray) * 1.1];
+                //assign data to graph
+                myGraph.series[0].data = chartData; //series is an array
+                //set graph settings
+                myGraph.series[0].name = "EUR/" + symbolName;
+                myGraph.min = minArray(yValueArray) * 0.8;
+                myGraph.max = maxArray(yValueArray) * 1.2;
+                myGraph.render(); //show graph
+            }
+            window.addEventListener('resize', resize);
+            resize();
+            //end charting logic
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+﻿@model List<Time>
+@{
+    ViewData["Title"] = "Currency Exchange";
+}
+
+@*load current day's rates*@
+@{var currentDay = Model.First();}
+
+<style>
+    /*for charting*/
+    #chartDiv {
+        position: relative;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #currChart {
+        position: relative;
+        left: 40px;
+    }
+
+    #y_axis {
+        position: absolute; /*must be this*/
+        top: 0;
+        bottom: 0;
+        width: 100px;
+    }
+</style>
+
+<!--div for chart-->
+<div class="row" id="chartDiv">
+    <div id="y_axis"></div>
+    <div id="currChart"></div>
+</div>
+
+<!--div for exchange function-->
+<div class="row">
+    <div class="col-md-6">
+
+        <h2>Exchange Currencies</h2>
+        <p>Select Currency to convert into now from Euros on this date:</p>
+        <p>@currentDay.TimeStamp</p>
+        <br />
+
+        <div class="col-6 col-md-4">
+            <select class="form-control" name="currDropdown" id="currDropdown">
+                @foreach (var curr in currentDay.Currencies)
+                {
+                    <option id="currency" value="@curr.Rate">@curr.Symbol</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h2>Enter amount of Euros to convert</h2>
+        <div class="row">
+            <div class="col-6 col-sm-3">
+                <input class="form-control" id="base" type="number" name="baseCurr" min="0" step="0.01">
+                <p>Euros converted</p>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-6 col-sm-3">
+                </p>Is worth:</p> 
+                <input class="form-control" id="converted" type="number" name="endCurr" readonly> 
+                <p id="symbol"></p><br>
+            </div>
+        </div>
+    </div>
+</div>
