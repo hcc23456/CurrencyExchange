@@ -30,7 +30,7 @@ namespace CurrencyExchange
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 //.UseUrls("http://localhost:5000", "http://xxxx:5000", "http://192.168.1.2:5000") //specified urls only
-                .UseUrls("http://*:80") //essential whether using kestrel or iis, accepts anything from the specified port
+                .UseUrls("http://*:5000") //essential whether using kestrel or iis, accepts anything from the specified port
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();
