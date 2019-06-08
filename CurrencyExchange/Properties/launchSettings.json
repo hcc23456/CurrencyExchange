@@ -21,7 +21,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:54665/"
+	  //this is for dotnet run using .csproj in main directory, override to set in program.cs to expose to external urls
+      //"applicationUrl": "http://localhost:54665/"
     }
   }
 }
